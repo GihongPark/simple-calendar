@@ -31,13 +31,14 @@ Calendar.prototype.click = function(container, callback) {
     this.bind();
 }
 Calendar.prototype.bind = function() {
-    this.eventList.forEach(function(event) {
-        document.querySelectorAll(event.container).forEach(function(target) {
-            target.onclick = function () {
-                event.callback.bind(this)();
-            }
-        })
-    });
+    for(let i=0, len=this.eventList.length; i<len; i++){
+        const container = document.querySelectorAll(this.eventList[i].container);
+        for(let j=0, len=container.length; j<len; j++){
+            container[j].onclick = function () {
+                this.eventList[i].callback.bind(container[j])();
+            }.bind(this);
+        }
+    }
 }
 Calendar.prototype.createTable = function () {
     const dayNames = this.dayNames;
@@ -119,41 +120,42 @@ Calendar.prototype.drawSchedule = function () {
     
     const year = this.date.getFullYear();
     const month = this.date.getMonth()+1;
-    prevEle.forEach(function (prev) {
+    
+    for(let i=0, len=prevEle.length; i<len; i++){
         let key = year+"-"+(month-1)+"-";
-        key += prev.dataset.day;
+        key += prevEle[i].dataset.day;
         if(that._schedule[key]){
-            prev.classList.add('schedule');
+            prevEle[i].classList.add('schedule');
         }
-    });
-    currentEle.forEach(function(cur) {
-        let key = year+"-"+month+"-";
-        key += cur.dataset.day;
+    }
+    for(let i=0, len=currentEle.length; i<len; i++){
+        let key = year+"-"+(month)+"-";
+        key += currentEle[i].dataset.day;
         if(that._schedule[key]){
-            cur.classList.add('schedule');
+            currentEle[i].classList.add('schedule');
         }
-    });
-    nextEle.forEach(function(next) {
+    }
+    for(let i=0, len=nextEle.length; i<len; i++){
         let key = year+"-"+(month+1)+"-";
-        key += next.dataset.day;
+        key += nextEle[i].dataset.day;
         if(that._schedule[key]){
-            next.classList.add('schedule');
+            nextEle[i].classList.add('schedule');
         }
-    });
-    //
+    }
+    
     this.bind();
 }
 Calendar.prototype.mappingSchedule = function() {
     let scheduleList = {};
-    this.schedule.forEach(function(obj){
-        const date = obj.date;
+    for(let i=0, len=this.schedule.length; i<len; i++){
+        const date = this.schedule[i].date;
         const key = date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();
         if(!scheduleList[key]){
             scheduleList[key] = [];
         }
-        scheduleList[key].push(obj);
-    });
-    
+        scheduleList[key].push(this.schedule[i]);
+    }
+
 //    console.log(scheduleList);
     this._schedule = scheduleList;
 }
@@ -185,9 +187,9 @@ Calendar.prototype.setSchedule = function(scheduleList) {
 }
 Calendar.prototype.appendSchedule = function(scheduleList) {
     const that = this;
-    scheduleList.forEach(function(schedule) {
-        that.schedule.push(schedule);
-    });
+    for(let i=0, len=scheduleList.length; i<len; i++){
+        this.schedule.push(scheduleList[i]);
+    }
     this.mappingSchedule();
     this.drawSchedule();
 }
